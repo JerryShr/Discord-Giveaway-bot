@@ -1,0 +1,317 @@
+<%- include('layout', { title: title, user: user }) %>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/dashboard">控制面板</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><%= guild.name %></li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex align-items-center mb-4">
+                <% if (guild.icon) { %>
+                    <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png" alt="<%= guild.name %>" class="me-3 rounded-circle" width="64" height="64">
+                <% } else { %>
+                    <div class="me-3 rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 64px; height: 64px; font-size: 24px;">
+                        <%= guild.name.charAt(0) %>
+                    </div>
+                <% } %>
+                <div>
+                    <h1 class="mb-0"><%= guild.name %></h1>
+                    <p class="text-muted mb-0">伺服器ID: <%= guild.id %></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4 mb-md-0">
+            <div class="list-group">
+                <a href="/guild/<%= guild.id %>" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-home me-2"></i>概覽
+                </a>
+                <a href="/guild/<%= guild.id %>/giveaway/new" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus-circle me-2"></i>創建抽獎
+                </a>
+                <a href="/guild/<%= guild.id %>/templates" class="list-group-item list-group-item-action">
+                    <i class="fas fa-copy me-2"></i>抽獎模板
+                </a>
+                <a href="/guild/<%= guild.id %>/stats" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-bar me-2"></i>統計數據
+                </a>
+                <a href="/guild/<%= guild.id %>/settings" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cog me-2"></i>設置
+                </a>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>伺服器統計</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            總抽獎數
+                            <span class="badge bg-primary rounded-pill"><%= stats.totalGiveaways %></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            進行中抽獎
+                            <span class="badge bg-success rounded-pill"><%= stats.activeGiveaways %></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            已完成抽獎
+                            <span class="badge bg-secondary rounded-pill"><%= stats.completedGiveaways %></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            總參與人數
+                            <span class="badge bg-info rounded-pill"><%= stats.totalParticipants %></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            總獲獎人數
+                            <span class="badge bg-warning rounded-pill"><%= stats.totalWinners %></span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="/guild/<%= guild.id %>/stats" class="btn btn-sm btn-primary w-100">
+                        <i class="fas fa-chart-bar me-1"></i>查看詳細統計
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-gift me-2"></i>進行中的抽獎</h5>
+                    <a href="/guild/<%= guild.id %>/giveaway/new" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus-circle me-1"></i>創建抽獎
+                    </a>
+                </div>
+                <div class="card-body">
+                    <% if (activeGiveaways && activeGiveaways.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>獎品</th>
+                                        <th>獲獎人數</th>
+                                        <th>參與人數</th>
+                                        <th>結束時間</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% activeGiveaways.forEach(giveaway => { %>
+                                        <tr>
+                                            <td><%= giveaway.prize %></td>
+                                            <td><%= giveaway.winnerCount %></td>
+                                            <td><%= giveaway.participants.length %></td>
+                                            <td><%= new Date(giveaway.endAt).toLocaleString() %></td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="/guild/<%= guild.id %>/giveaway/<%= giveaway.messageId %>" class="btn btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <button class="btn btn-outline-success" onclick="endGiveaway('<%= giveaway.messageId %>')">
+                                                        <i class="fas fa-flag-checkered"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" onclick="deleteGiveaway('<%= giveaway.messageId %>')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="fas fa-gift fa-3x text-muted mb-3"></i>
+                            <p class="mb-0">目前沒有進行中的抽獎活動。</p>
+                            <a href="/guild/<%= guild.id %>/giveaway/new" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus-circle me-1"></i>創建抽獎
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>已結束的抽獎</h5>
+                </div>
+                <div class="card-body">
+                    <% if (endedGiveaways && endedGiveaways.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>獎品</th>
+                                        <th>獲獎人數</th>
+                                        <th>參與人數</th>
+                                        <th>結束時間</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% endedGiveaways.slice(0, 5).forEach(giveaway => { %>
+                                        <tr>
+                                            <td><%= giveaway.prize %></td>
+                                            <td><%= giveaway.winners.length %>/<%= giveaway.winnerCount %></td>
+                                            <td><%= giveaway.participants.length %></td>
+                                            <td><%= new Date(giveaway.endAt).toLocaleString() %></td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="/guild/<%= guild.id %>/giveaway/<%= giveaway.messageId %>" class="btn btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <button class="btn btn-outline-warning" onclick="rerollGiveaway('<%= giveaway.messageId %>')">
+                                                        <i class="fas fa-redo"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" onclick="deleteGiveaway('<%= giveaway.messageId %>')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <% if (endedGiveaways.length > 5) { %>
+                            <div class="text-center mt-3">
+                                <a href="/guild/<%= guild.id %>/giveaways/ended" class="btn btn-outline-secondary">
+                                    查看所有已結束的抽獎 (<%= endedGiveaways.length %>)
+                                </a>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <p class="mb-0">沒有已結束的抽獎活動。</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-copy me-2"></i>抽獎模板</h5>
+                </div>
+                <div class="card-body">
+                    <% if (templates && templates.length > 0) { %>
+                        <div class="row">
+                            <% templates.slice(0, 3).forEach(template => { %>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= template.name %></h5>
+                                            <p class="card-text text-muted">
+                                                獎品: <%= template.prize || '未設置' %><br>
+                                                獲獎人數: <%= template.winnerCount %><br>
+                                                持續時間: <%= template.duration %>
+                                            </p>
+                                        </div>
+                                        <div class="card-footer">
+                                            <a href="/guild/<%= guild.id %>/giveaway/new?template=<%= template.name %>" class="btn btn-sm btn-primary w-100">
+                                                <i class="fas fa-plus-circle me-1"></i>使用此模板
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                        <% if (templates.length > 3) { %>
+                            <div class="text-center mt-3">
+                                <a href="/guild/<%= guild.id %>/templates" class="btn btn-outline-info">
+                                    查看所有模板 (<%= templates.length %>)
+                                </a>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="fas fa-copy fa-3x text-muted mb-3"></i>
+                            <p class="mb-0">您還沒有保存任何抽獎模板。</p>
+                            <p class="text-muted">創建抽獎時，您可以將設置保存為模板，以便將來重複使用。</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function endGiveaway(giveawayId) {
+        if (confirm('確定要結束此抽獎活動嗎？這將立即抽出獲獎者。')) {
+            fetch(`/api/guild/<%= guild.id %>/giveaway/${giveawayId}/end`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('抽獎活動已成功結束！');
+                    window.location.reload();
+                } else {
+                    alert('結束抽獎活動時出錯: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('發生錯誤: ' + error);
+            });
+        }
+    }
+    
+    function rerollGiveaway(giveawayId) {
+        if (confirm('確定要重新抽取獲獎者嗎？')) {
+            fetch(`/api/guild/<%= guild.id %>/giveaway/${giveawayId}/reroll`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('已成功重新抽取獲獎者！');
+                    window.location.reload();
+                } else {
+                    alert('重新抽取獲獎者時出錯: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('發生錯誤: ' + error);
+            });
+        }
+    }
+    
+    function deleteGiveaway(giveawayId) {
+        if (confirm('確定要刪除此抽獎活動嗎？此操作無法撤銷。')) {
+            fetch(`/api/guild/<%= guild.id %>/giveaway/${giveawayId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('抽獎活動已成功刪除！');
+                    window.location.reload();
+                } else {
+                    alert('刪除抽獎活動時出錯: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('發生錯誤: ' + error);
+            });
+        }
+    }
+</script>
