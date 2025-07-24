@@ -1,0 +1,106 @@
+<%- include('layout', { title: title, user: user }) %>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-3"><i class="fas fa-tachometer-alt me-2"></i>控制面板</h1>
+            <p class="lead">歡迎回來，<strong><%= user.username %></strong>！選擇一個伺服器來管理抽獎活動。</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <% if (guilds && guilds.length > 0) { %>
+            <% guilds.forEach(guild => { %>
+                <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <% if (guild.icon) { %>
+                                    <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png" alt="<%= guild.name %>" class="me-3 rounded-circle" width="50" height="50">
+                                <% } else { %>
+                                    <div class="me-3 rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 50px; height: 50px;">
+                                        <%= guild.name.charAt(0) %>
+                                    </div>
+                                <% } %>
+                                <h5 class="card-title mb-0"><%= guild.name %></h5>
+                            </div>
+                            <p class="card-text text-muted mb-3">
+                                <i class="fas fa-users me-1"></i> 伺服器ID: <%= guild.id %>
+                            </p>
+                            <div class="mt-auto">
+                                <a href="/guild/<%= guild.id %>" class="btn btn-primary w-100">
+                                    <i class="fas fa-cog me-1"></i> 管理伺服器
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> 您沒有管理權限的伺服器，或者機器人尚未被邀請到您的伺服器。
+                </div>
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-3">邀請機器人到您的伺服器</h5>
+                        <p class="card-text">將GiveawayBot添加到您的Discord伺服器，開始舉辦抽獎活動！</p>
+                        <a href="https://discord.com/api/oauth2/authorize?client_id=<%= process.env.CLIENT_ID %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i>邀請機器人
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>需要幫助？</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-book text-primary fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5>文檔</h5>
+                                    <p class="mb-0">查看我們的文檔，了解如何使用GiveawayBot的所有功能。</p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary mt-2">查看文檔</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-discord text-primary fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5>支持伺服器</h5>
+                                    <p class="mb-0">加入我們的Discord伺服器，獲取幫助和支持。</p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary mt-2">加入支持伺服器</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-code text-primary fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5>開發者API</h5>
+                                    <p class="mb-0">使用我們的API將GiveawayBot集成到您的應用程序中。</p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary mt-2">查看API文檔</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
